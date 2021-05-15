@@ -41,19 +41,19 @@ class Polynomial:
         return "".join(reversed(result))
 
     def __add__(self, other):
+        addition_coefficients = []
         if isinstance(other, int):
-            result_coefficients = self.coefficients[:]
-            result_coefficients[-1] += other
-            return Polynomial(result_coefficients)
+            addition_coefficients = self.coefficients[:]
+            addition_coefficients[-1] += other
         elif isinstance(other, Polynomial):
             long_polynomial, short_polynomial = (self, other) if len(self.coefficients) > len(other.coefficients) \
                 else (other, self)
-            result_coefficients = long_polynomial.coefficients[:]
+            addition_coefficients = long_polynomial.coefficients[:]
             for i in range(1, len(short_polynomial.coefficients) + 1):
-                result_coefficients[-i] += short_polynomial.coefficients[-i]
-            return Polynomial(result_coefficients)
+                addition_coefficients[-i] += short_polynomial.coefficients[-i]
         else:
             raise TypeError("Unacceptable type of the operand!")
+        return Polynomial(self.__remove_zeros(addition_coefficients))
 
     def __radd__(self, other):
         return self + other
@@ -97,6 +97,12 @@ class Polynomial:
             other = Polynomial(other)
             return self.coefficients == other.coefficients
         elif isinstance(other, Polynomial):
-            return self.coefficients == other.coefficients
+            return self.__remove_zeros(self.coefficients) == other.__remove_zeros(other.coefficients)
         else:
             raise TypeError("Unacceptable type of the operand!")
+
+    @staticmethod
+    def __remove_zeros(coefficients):
+        while coefficients[0] == 0 and len(coefficients) > 1:
+            del coefficients[0]
+        return coefficients
